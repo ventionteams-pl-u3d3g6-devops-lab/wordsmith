@@ -1,0 +1,4 @@
+.idea
+docker-compose.yml
+api/Dockerfile
+web/Dockerfile
