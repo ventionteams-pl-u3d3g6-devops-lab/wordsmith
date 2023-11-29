@@ -7,6 +7,24 @@ The wordsmith project is split into 3 parts:
 - `api`: REST API written in Java, to query the DB
 - `db`: PostgreSQL database containing the words to display
 
+```mermaid
+flowchart 
+subgraph Docker Compose
+    web(web: Web Server)
+    api(api: API Service)
+    db(db: Database)
+end
+
+style user fill:#005792,stroke:#069,stroke-width:2px;
+style web fill:#5585b5,stroke:#069,stroke-width:2px;
+style api fill:#53a8b6,stroke:#069,stroke-width:2px;
+style db fill:#79c2d0,stroke:#069,stroke-width:2px;
+
+user --> web
+web -- app-net --> api
+api -- private-net --> db
+```
+
 Our goal is to containerize this application.
 
 There will be 2 steps:
