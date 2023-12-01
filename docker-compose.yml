@@ -1,0 +1,47 @@
+version: '3'
+
+networks:
+  app-net:
+  private-net:
+
+services:
+  #web go app image
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    networks:
+      - app-net
+    ports:
+      - "8000:80"
+    expose:
+      - "80"
+    image: go-web:latest
+    container_name: web-latest
+
+  #api app java image
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    networks:
+      - app-net
+      - private-net
+    image: java-api:latest
+    #container_name: api-latest
+    depends_on:
+      - db
+    deploy:
+      mode: replicated
+      replicas: 5
+
+  #database postgres image     
+  db:
+    image: postgres:latest 
+    networks:
+      - private-net
+    container_name: db-latest
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
