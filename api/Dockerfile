@@ -1,20 +1,26 @@
 #use a debian image
-FROM debian:latest
-
-#install Java and Maven
-RUN apt-get update && apt-get install -y default-jre maven
+FROM maven:3-eclipse-temurin-11-alpine as build
 
 #set the working directory
 WORKDIR /app
 
 #copy the source code to the container
-COPY . /app
+COPY pom.xml .
 
 #build the program with Maven
-RUN mvn verify
+RUN mvn clean verify
+
+#stage 2
+FROM maven:3-eclipse-temurin-11-alpine
+
+#set the working directory
+WORKDIR /app
+
+#copy build jar from prev. stage
+COPY --from=build /app/target/words.jar .
 
 #expose the port the app runs on
 EXPOSE 8080
 
 #command to run the application
-CMD ["java", "-Xmx8m", "-Xms8m", "-jar", "target/words.jar"]
+CMD ["java", "-Xmx8m", "-Xms8m", "-jar", "words.jar"]
