@@ -28,7 +28,7 @@ services:
       - app-net
       - private-net
     image: java-api:latest
-    #container_name: api-latest
+    container_name: api-latest
     depends_on:
       - db
     deploy:
