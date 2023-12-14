@@ -12,6 +12,8 @@ RUN go build dispatcher.go
 
 FROM alpine:latest
 
+RUN apk add --no-cache libc6-compat 
+
 #create a working dir in image
 WORKDIR /app
 
@@ -28,4 +30,3 @@ EXPOSE 80
 
 #execute
 CMD ["./dispatcher"]
-

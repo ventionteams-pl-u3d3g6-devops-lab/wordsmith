@@ -5,7 +5,7 @@ FROM maven:3-eclipse-temurin-11-alpine as build
 WORKDIR /app
 
 #copy the source code to the container
-COPY pom.xml .
+COPY . .
 
 #build the program with Maven
 RUN mvn clean verify
@@ -17,7 +17,7 @@ FROM maven:3-eclipse-temurin-11-alpine
 WORKDIR /app
 
 #copy build jar from prev. stage
-COPY --from=build /app/target/words.jar .
+COPY --from=build /app/target/ .
 
 #expose the port the app runs on
 EXPOSE 8080
