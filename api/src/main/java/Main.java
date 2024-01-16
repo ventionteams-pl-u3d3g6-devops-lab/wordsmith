@@ -22,16 +22,47 @@ public class Main {
     }
 
     private static String randomWord(String table) {
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://db:5432/postgres", "postgres", "")) {
-            try (Statement statement = connection.createStatement()) {
-                try (ResultSet set = statement.executeQuery("SELECT word FROM " + table + " ORDER BY random() LIMIT 1")) {
-                    while (set.next()) {
-                        return set.getString(1);
+        String PGHOST = System.getenv("PGHOST");
+        String PGPORT = System.getenv("PGPORT");
+        String POSTGRES_HOST_AUTH_METHOD = System.getenv("POSTGRES_HOST_AUTH_METHOD");
+
+	PGHOST = (PGHOST != null) ? PGHOST : "db";
+	PGPORT = (PGPORT != null) ? PGPORT : "5432";
+
+        if (POSTGRES_HOST_AUTH_METHOD != null && POSTGRES_HOST_AUTH_METHOD.equals("trust")) {
+            // If trust is used, avoid using PGUSER and PGPASSWORD
+            String connectionString = String.format("jdbc:postgresql://%s:%s/postgres", PGHOST, PGPORT);
+            try (Connection connection = DriverManager.getConnection(connectionString)) {
+                try (Statement statement = connection.createStatement()) {
+                    try (ResultSet set = statement.executeQuery("SELECT word FROM " + table + " ORDER BY random() LIMIT 1")) {
+                        while (set.next()) {
+                            return set.getString(1);
+                        }
                     }
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } else {
+            // Use PGUSER and PGPASSWORD
+            String PGUSER = System.getenv("PGUSER");
+            String PGPASSWORD = System.getenv("PGPASSWORD");
+
+            PGUSER = (PGUSER != null) ? PGUSER : "postgres";
+            PGPASSWORD = (PGPASSWORD != null) ? PGPASSWORD : "";
+
+            String connectionString = String.format("jdbc:postgresql://%s:%s/postgres", PGHOST, PGPORT);
+            try (Connection connection = DriverManager.getConnection(connectionString, PGUSER, PGPASSWORD)) {
+                try (Statement statement = connection.createStatement()) {
+                    try (ResultSet set = statement.executeQuery("SELECT word FROM " + table + " ORDER BY random() LIMIT 1")) {
+                        while (set.next()) {
+                            return set.getString(1);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
         throw new NoSuchElementException(table);
